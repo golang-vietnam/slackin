@@ -1,41 +1,110 @@
-Slack Invite Automation
-------------
 
-A tiny web application to invite a user info your slack team.
+# slackin
 
-Inspired by
-[How I hacked Slack into a community platform with Typeform](https://levels.io/slack-typeform-auto-invite-sign-ups/)
-and
-[Socket.io's slack page](http://socket.io/slack/).
+A little server that enables public access
+to a Slack server. Like Freenode, but on Slack.
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+It provides
 
-## Setting
-fill out `config.js` as your infomation.
+- A landing page you can point users to fill in their
+  emails and receive an invite (`http://slack.yourdomain.com`)
+- An `<iframe>` badge to embed on any website
+  that shows connected users in *realtime* with socket.io.
+- A SVG badge that works well from static mediums
+  (like GitHub README pages)
 
-* `community`: your cummunity or team name to display on join page.
-* `slackUrl` : your slack team url (ex: socketio.slack.com)
-* `slacktoken` : access token of slack.
-  You can generate it in <https://api.slack.com/web#auth>
+Read more about the [motivations and history](http://rauchg.com/slackin) behind Slackin.
 
-  You can test your token via curl:
+## How to use
 
-  ```shell
-   curl -X POST 'https://YOUR-SLACK-TEAM.slack.com/api/users.admin.invite' \
-   --data 'email=EMAIL&token=TOKEN&set_active=true' \
-   --compressed
-  ```
+### Server
 
-## Run
-[Node.js](http://nodejs.org/) is required.
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-```shell
-$ git clone git@github.com:outsideris/slack-invite-automation.git
-$ cd slack-invite-automation
-$ npm install
-$ bin/www
+Or install it and launch it on your sever:
+
+```bash
+$ npm install -g slackin
+$ slackin "your-slack-subdomain" "your-slack-token"
 ```
 
-You can access <http://localhost:3000> on your web browser.
+You can find your API token at [api.slack.com/web](https://api.slack.com/web).
 
-![](https://raw.github.com/outsideris/slack-invite-automation/master/screenshots/join-page.png)
+The available options are:
+
+```
+Usage: slackin [options] <slack-subdomain> <api-token>
+
+Options:
+
+  -h, --help            output usage information
+  -V, --version         output the version number
+  -p, --port <port>     Port to listen on [$PORT or 3000]
+  -c, --channel <chan>  Single channel guest invite [$SLACK_CHANNEL]
+  -i, --interval <int>  How frequently (ms) to poll Slack [$SLACK_INTERVAL or 1000]
+  -s, --silent          Do not print out warns or errors
+```
+
+### Realtime Badge
+
+[![](https://cldup.com/IaiPnDEAA6.gif)](http://slack.socket.io)
+
+```html
+<script async defer src="http://slackin.yourhost.com/slackin.js"></script>
+```
+
+or for the large version, append `?large`:
+
+```html
+<script async defer src="http://slackin.yourhost.com/slackin.js?large"></script>
+```
+
+### SVG
+
+[![](https://cldup.com/jWUT4QFLnq.png)](http://slack.socket.io)
+
+```html
+<img src="http://slackin.yourhost.com/badge.svg">
+```
+
+### Landing page
+
+[![](https://cldup.com/WIbawiqp0Q.png)](http://slack.socket.io)
+
+Point to `http://slackin.yourhost.com`.
+
+**Note:** the image for the logo of the landing page
+is retrieved from the Slack API. If your organization
+doesn't have one configured, it won't be shown.
+
+## API
+
+Requiring `slackin` as a module will return
+a `Function` that creates a `HTTP.Server` instance
+that you can manipulate.
+
+```js
+require('slackin')({
+  token: 'yourtoken', // required
+  interval: 1000,
+  org: 'your-slack-subdomain', // required
+  channel: 'channel' // for single channel mode,
+  silent: false // suppresses warnings
+}).listen(3000);
+```
+
+This will show response times from Slack and how many
+online users you have on the console.
+
+By default logging is enabled.
+
+## Credits
+
+- The SVG badge generation was taken from the
+excellent [shields](https://github.com/badges/shields) project.
+- The button CSS is based on 
+[github-buttons](https://github.com/mdo/github-buttons).
+
+## License
+
+MIT
